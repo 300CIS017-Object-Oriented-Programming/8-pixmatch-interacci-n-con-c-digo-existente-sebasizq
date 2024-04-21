@@ -6,7 +6,6 @@ import base64
 import json
 from PIL import Image
 from streamlit_autorefresh import st_autorefresh
-
 # Configuracion de los atributos generales de la página
 st.set_page_config(page_title = "PixMatch", page_icon="🕹️", layout = "wide", initial_sidebar_state = "expanded")
 
@@ -59,7 +58,6 @@ purple_btn_colour = """
 
 #Estado de la sesion
 mystate = st.session_state
-
 # Si no existen las siguientes claves en el estado de la sesión, se inicializan con valores predeterminados
 if "expired_cells" not in mystate: mystate.expired_cells = []
 if "myscore" not in mystate: mystate.myscore = 0
@@ -95,7 +93,7 @@ def Leaderboard(what_to_do):
     if what_to_do == 'create':
         # Crea un archivo de marcador si no existe y el nombre del jugador está disponible
         if mystate.GameDetails[3] != '':
-            if not os.path.isfile(vpth + 'leaderboard.json'):
+            if os.path.isfile(vpth + 'leaderboard.json') == False:
                 tmpdict = {}
                 json.dump(tmpdict, open(vpth + 'leaderboard.json', 'w'))  # write file
 
@@ -106,13 +104,11 @@ def Leaderboard(what_to_do):
                 leaderboard = json.load(open(vpth + 'leaderboard.json'))  # lee un archivo
                 leaderboard_dict_lngth = len(leaderboard)
 
-                leaderboard[str(leaderboard_dict_lngth + 1)] = {'NameCountry': mystate.GameDetails[3],
-                                                                'HighestScore': mystate.myscore}
-                leaderboard = dict(
-                    sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # ordena decendentemente
+                leaderboard[str(leaderboard_dict_lngth + 1)] = {'NameCountry': mystate.GameDetails[3],'HighestScore': mystate.myscore}
+                leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # ordena decendentemente
 
-                if len(leaderboard) > 3:
-                    for i in range(len(leaderboard) - 3):
+                if len(leaderboard) > 4:
+                    for i in range(len(leaderboard) - 4):
                         leaderboard.popitem()
 
                 json.dump(leaderboard, open(vpth + 'leaderboard.json', 'w'))  # escribe en el archivo
@@ -126,21 +122,19 @@ def Leaderboard(what_to_do):
                 leaderboard = dict(
                     sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # ordena decendente
 
-                sc0, sc1, sc2, sc3 = st.columns((2, 3, 3, 3))
+                sc0, sc1, sc2, sc3, sc4 = st.columns((2, 3, 3, 3, 3))
                 rknt = 0
                 for vkey in leaderboard.keys():
                     if leaderboard[vkey]['NameCountry'] != '':
                         rknt += 1
                         if rknt == 1:
                             sc0.write('🏆 Past Winners:')
-                            sc1.write(
-                                f"🥇 | {leaderboard[vkey]['NameCountry']}: :red[{leaderboard[vkey]['HighestScore']}]")
+                            sc1.write(f"🥇 | {leaderboard[vkey]['NameCountry']}: :red[{leaderboard[vkey]['HighestScore']}]")
                         elif rknt == 2:
-                            sc2.write(
-                                f"🥈 | {leaderboard[vkey]['NameCountry']}: :red[{leaderboard[vkey]['HighestScore']}]")
-                        elif rknt == 3:
-                            sc3.write(
-                                f"🥉 | {leaderboard[vkey]['NameCountry']}: :red[{leaderboard[vkey]['HighestScore']}]")
+                            sc2.write(f"🥈 | {leaderboard[vkey]['NameCountry']}: :red[{leaderboard[vkey]['HighestScore']}]")
+                        elif rknt == 3: sc3.write(f"🥉 | {leaderboard[vkey]['NameCountry']}: :red[{leaderboard[vkey]['HighestScore']}]")
+                        elif rknt == 4:
+                            sc4.write(f"🥉 | {leaderboard[vkey]['NameCountry']}: :red[{leaderboard[vkey]['HighestScore']}]")
 
 def InitialPage():
     """
@@ -317,7 +311,7 @@ def NewGame():
     ResetBoard()# Reinicia el tablero del juego
     total_cells_per_row_or_col = mystate.GameDetails[2]# Obtiene el número total de celdas por fila o columna
 
-    ReduceGapFromPageTop('sidebar')# Reducción del espacio desde la parte superior de la página
+    ReduceGapFromPageTop('sidebar')  # Reducción del espacio desde la parte superior de la página
     with st.sidebar:
         st.subheader(f"🖼️ Pix Match: {mystate.GameDetails[0]}")# Encabezado de la barra lateral con el nivel de dificultad seleccionado
         st.markdown(horizontal_bar, True)# Línea horizontal decorativa
@@ -327,7 +321,7 @@ def NewGame():
         aftimer = st_autorefresh(interval=(mystate.GameDetails[1] * 1000), key="aftmr")# Actualiza automáticamente el temporizador en la barra lateral
         if aftimer > 0: mystate.myscore -= 1 # Reduce el puntaje si el temporizador está en funcionamiento
 
-        st.info(f"{ScoreEmoji()} Score: {mystate.myscore} | Pending: {(total_cells_per_row_or_col ** 2)-len(mystate.expired_cells)}")
+        st.info(f"{ScoreEmoji()} Score: {mystate.myscore} | Pending: {(total_cells_per_row_or_col ** 2) - len(mystate.expired_cells)}")
 
         st.markdown(horizontal_bar, True)
         if st.button(f"🔙 Return to Main Page", use_container_width=True):
@@ -340,12 +334,16 @@ def NewGame():
 
     # Set Board Dafaults
     st.markdown("<style> div[class^='css-1vbkxwb'] > p { font-size: 1.5rem; } </style> ", unsafe_allow_html=True)  # make button face big
-
+    errores = 0
     for i in range(1, (total_cells_per_row_or_col+1)):
         tlst = ([1] * total_cells_per_row_or_col) + [2] # 2 = rt side padding
         globals()['cols' + str(i)] = st.columns(tlst)
 
     for vcell in range(1, (total_cells_per_row_or_col ** 2)+1):
+        if errores == (total_cells_per_row_or_col ** 1)+1:
+            mystate.runpage = Main
+            st.rerun()
+            break
         if 1 <= vcell <= (total_cells_per_row_or_col * 1):
             arr_ref = '1'
             mval = 0
@@ -393,6 +391,7 @@ def NewGame():
 
             elif mystate.plyrbtns[vcell]['isTrueFalse'] == False:
                 globals()['cols' + arr_ref][vcell-mval].markdown(pressed_emoji.replace('|fill_variable|', '❌'), True)
+                errores+=1
 
         else:
             vemoji = mystate.plyrbtns[vcell]['eMoji']
@@ -401,7 +400,7 @@ def NewGame():
     st.caption('') # vertical filler
     st.markdown(horizontal_bar, True)
 
-    if len(mystate.expired_cells) == (total_cells_per_row_or_col ** 2):
+    if len(mystate.expired_cells) == (total_cells_per_row_or_col ** 2) :
         Leaderboard('write')
 
         if mystate.myscore > 0: st.balloons()
@@ -420,31 +419,29 @@ def Main():
     Además, permite iniciar un nuevo juego y actualiza la interfaz de usuario en consecuencia.
     """
 
-    st.markdown('<style>[data-testid="stSidebar"] > div:first-child {width: 310px;}</style>',
-                unsafe_allow_html=True)  # Reduce el ancho de la barra lateral
+    st.markdown('<style>[data-testid="stSidebar"] > div:first-child {width: 310px;}</style>', unsafe_allow_html=True)  # Reduce el ancho de la barra lateral
     st.markdown(purple_btn_colour, unsafe_allow_html=True)  # Establece el color de los botones en púrpura
 
     InitialPage()  # Muestra la página inicial
 
     with st.sidebar:
         # Permite al usuario seleccionar el nivel de dificultad y proporcionar el nombre del jugador
-        mystate.GameDetails[0] = st.radio('Nivel de Dificultad:', options=('Fácil', 'Medio', 'Difícil'), index=1,
-                                          horizontal=True)
-        mystate.GameDetails[3] = st.text_input("Nombre del Jugador, País", placeholder='Shawn Pereira, India',
-                                               help='Entrada opcional solo para la tabla de clasificación')
+        mystate.GameDetails[0] = st.radio('Difficulty Level:', options=('Easy', 'Medium', 'Hard'), index=1,horizontal=True, )
+        mystate.GameDetails[3] = st.text_input("Player Name, Country", placeholder='Shawn Pereira, India',help='Optional input only for Leaderboard')
+
 
         # Botón para iniciar un nuevo juego
-        if st.button(f"🕹️ Nuevo Juego", use_container_width=True):
+        if st.button(f"🕹️ New Game", use_container_width=True):
             # Configura los detalles del juego según el nivel de dificultad seleccionado
-            if mystate.GameDetails[0] == 'Fácil':
+            if mystate.GameDetails[0] == 'Easy':
                 mystate.GameDetails[1] = 8  # Intervalo de tiempo en segundos
                 mystate.GameDetails[2] = 6  # Celdas totales por fila o columna
 
-            elif mystate.GameDetails[0] == 'Medio':
+            elif mystate.GameDetails[0] == 'Medium':
                 mystate.GameDetails[1] = 6  # Intervalo de tiempo en segundos
                 mystate.GameDetails[2] = 7  # Celdas totales por fila o columna
 
-            elif mystate.GameDetails[0] == 'Difícil':
+            elif mystate.GameDetails[0] == 'Hard':
                 mystate.GameDetails[1] = 5  # Intervalo de tiempo en segundos
                 mystate.GameDetails[2] = 8  # Celdas totales por fila o columna
 
