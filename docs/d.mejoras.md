@@ -42,6 +42,65 @@ Los atributos son las características o propiedades de las clases, y los modifi
 #  Entregable - Mejoras para pasar a POO
 Detalla en este markdown lo siguiente: 
 - **Clases a Definir:** Enumera las clases que se podrían definir, describe sus propósito y justifica porque crees que es una clase útil para mejorar el programa.
+- 1. **Juego**
+   - **Propósito:** Representa el juego en sí mismo, incluyendo la lógica de juego y la gestión de la puntuación.
+   - **Justificación:** Esta clase encapsularía toda la funcionalidad relacionada con el juego, lo que haría que el código sea más modular y fácil de entender.
+
+2. **Tablero**
+   - **Propósito:** Maneja la configuración y el estado del tablero de juego.
+   - **Justificación:** Agruparía la información relacionada con el tablero y sus elementos, como las casillas y las imágenes mostradas en ellas.
+
+3. **Jugador**
+   - **Propósito:** Representa al jugador del juego, almacenando su nombre, país y puntuación.
+   - **Justificación:** Encapsula los datos del jugador y proporciona métodos para actualizar su puntuación y mostrar su información en pantalla.
+
+4. **Ranking**
+   -  **Propósito:** Gestiona el ranking de puntajes de los jugadores.
+   -  **Justificación:** Esta clase permite mantener un registro de los puntajes de los jugadores y proporciona métodos para actualizar y mostrar el ranking.
+
+5.  **View**
+   - **Propósito:** Representa la vista del juego, que incluye la interfaz de usuario y la interacción con el juego y el ranking.
+   - **Justificación:** Agrupa la lógica relacionada con la presentación de la información del juego y el ranking, separándola de la lógica de negocio del juego mismo.
 - **Métodos Importantes:** Enumera los métodos principales para cada clase. Incluye una descripción de cuál sería la utilidad de cada método
+**Clase Juego:**
+- `iniciar_juego()`: Inicia una nueva partida de acuerdo a la configuración de dificultad seleccionada.
+- `verificar_seleccion(casilla_seleccionada)`: Verifica si la imagen seleccionada por el jugador coincide con la imagen objetivo.
+- `finalizar_juego()`: Finaliza el juego cuando todas las imágenes han sido seleccionadas.
+
+**Clase Tablero:**
+- `inicializar_tablero(dificultad)`: Inicializa el tablero con un conjunto aleatorio de imágenes según la dificultad seleccionada.
+- `mostrar_tablero()`: Muestra el tablero de juego actual en la interfaz de usuario.
+- `actualizar_casilla()`: Actualiza el estado de una casilla después de que el jugador haya realizado una selección.
+
+**Clase Jugador:**
+- `actualizar_puntuacion(puntos)`: Actualiza la puntuación del jugador según los puntos obtenidos en una jugada.
+- `mostrar_informacion()`: Muestra la información del jugador, incluyendo nombre, país y puntuación, en la interfaz de usuario.
+**Clase View:**
+- new_game(): Inicia un nuevo juego.
+**Clase Ranking:**
+- mostrar_ranking(): Muestra el ranking de puntajes de los jugadores en la interfaz de usuario.
 - **Imagen del UML del diagrama de clases**  Adjunta una imagen del UML del diagrama de clases como una forma visual de planificar y entender la estructura de las clases, métodos, atributos y relaciones que podría tener una versión mejorada del código fuente.
-- **Organización de archivos:** Propon una estructura de organización de los archivos de este proyecto para que no queden todos en la raiz principal. Investiga cuáles podrían ser buenas formas de organizar los directorios y a partir de tu investigación indica qué directorios crearías y cómo los organizarías. 
+![diagrama_clases.jpg](img/diagrama_clases.jpg) 
+- **organización de archivos:** Propon una estructura de organización de los archivos de este proyecto para que no queden todos en la raiz principal. Investiga cuáles podrían ser buenas formas de organizar los directorios y a partir de tu investigación indica qué directorios crearías y cómo los organizarías. 
+- **src/:**
+  - Este directorio contendría todo el código fuente del proyecto.
+  
+  - **juego/:**
+    - Aquí se encontrarían los archivos relacionados con la lógica del juego.
+      - juego.py: Clase principal que gestiona el juego.
+      - tablero.py: Definición de la clase Tablero.
+      - jugador.py: Definición de la clase Jugador.
+      - ranking.py: Definición de la clase Ranking.
+  
+  - **vista/:**
+    - Contendría los archivos relacionados con la interfaz de usuario.
+      - view.py: Clase que maneja la vista y la interacción con el usuario.
+  
+  - main.py: Archivo principal que inicia la aplicación.
+  
+- **img/:**
+  - Este directorio contendría todas las imágenes utilizadas en el proyecto, como emojis u otros elementos gráficos.
+  
+- requirements.txt: Archivo que lista todas las dependencias del proyecto para su fácil instalación.
+
+Esta estructura separa claramente la lógica del juego de la interfaz de usuario y mantiene los archivos bien organizados para facilitar su mantenimiento y escalabilidad.
